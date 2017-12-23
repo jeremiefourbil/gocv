@@ -746,7 +746,7 @@ const (
 
 // Match a template in an image
 // https://github.com/opencv/opencv/blob/master/modules/imgproc/include/opencv2/imgproc.hpp#L3744
-func MatchTemplate(Mat src, Mat tpl, Mat dst, method TemplateMatchingMethod, Mat mask) {
-	C.MatchTemplate(src.p, tpl.p, dst.p, C.int(method))
+func MatchTemplate(src, tpl, dst Mat, method TemplateMatchingMethod, mask Mat) {
+	C.MatchTemplate(src.p, tpl.p, dst.p, C.int(method), mask.p)
 	return
 }

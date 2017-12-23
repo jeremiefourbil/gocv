@@ -5,6 +5,7 @@
 
 #ifdef __cplusplus
 #include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
 extern "C" {
 #endif
 
@@ -42,7 +43,7 @@ struct Size GetTextSize(const char* text, int fontFace, double fontScale, int th
 void PutText(Mat img, const char* text, Point org, int fontFace, double fontScale,
              Scalar color, int thickness);
 void Resize(Mat src, Mat dst, Size sz, double fx, double fy, int interp);
-void MatchTemplate(Mat src, Mat tpl, Mat dst, int method, Mat mask);
+void MatchTemplate(Mat src, Mat tpl, Mat dst, int method, Mat mask=noArray());
 
 #ifdef __cplusplus
 }
