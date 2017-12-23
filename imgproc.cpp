@@ -168,6 +168,6 @@ void Resize(Mat src, Mat dst, Size dsize, double fx, double fy, int interp) {
   cv::resize(*src, *dst, sz, fx, fy, interp);
 }
 
-void MatchTemplate(Mat src, Mat tpl, Mat dst, int method, Mat mask) {
+void MatchTemplate(Mat src, Mat tpl, Mat dst, int method, Mat mask = cv::noArray()) {
   cv::matchTemplate(*src, *tpl, *dst, method, *mask);
 }
