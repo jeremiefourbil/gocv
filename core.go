@@ -365,8 +365,8 @@ const (
 // For further details, please see:
 // https://docs.opencv.org/3.3.1/d2/de8/group__core__array.html#ga4b78072a303f29d9031d56e5638da78e
 func Reduce(src, dst Mat, dim, rtype ReduceType, dtype int) {
-		C.Mat_Reduce(src.p, dst.p, C.int(dim), C.int(rtype), C.int(dtype))
-	}
+	C.Mat_Reduce(src.p, dst.p, C.int(dim), C.int(rtype), C.int(dtype))
+}
 
 
 // TermCriteriaType for TermCriteria.
