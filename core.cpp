@@ -157,6 +157,10 @@ void Mat_Normalize(Mat src, Mat dst, double alpha, double beta, int typ) {
     cv:normalize(*src, *dst, alpha, beta, typ);
 }
 
+void Mat_Reduce(Mat src, Mat dst, int dim, int rtype, int dtype) {
+  cv::reduce(*src, *dst, dim, rtype, dtype);
+}
+
 // TermCriteria_New creates a new TermCriteria
 TermCriteria TermCriteria_New(int typ, int maxCount, double epsilon) {
     return new cv::TermCriteria(typ, maxCount, epsilon);
