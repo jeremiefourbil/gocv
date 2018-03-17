@@ -7,7 +7,6 @@ package gocv
 import "C"
 import (
 	"image"
-	"reflect"
 	"runtime"
 	"unsafe"
 )
@@ -19,7 +18,7 @@ import (
 // quickly and visualize the results. This is what the HighGUI module has been designed for.
 //
 // For further details, please see:
-// http://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html
+// http://docs.opencv.org/master/d7/dfc/group__highgui.html
 //
 type Window struct {
 	name string
@@ -29,7 +28,7 @@ type Window struct {
 // NewWindow creates a new named OpenCV window
 //
 // For further details, please see:
-// http://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#ga5afdf8410934fd099df85c75b2e0888b
+// http://docs.opencv.org/master/d7/dfc/group__highgui.html#ga5afdf8410934fd099df85c75b2e0888b
 //
 func NewWindow(name string) *Window {
 	runtime.LockOSThread()
@@ -45,7 +44,7 @@ func NewWindow(name string) *Window {
 // Close closes and deletes a named OpenCV Window.
 //
 // For further details, please see:
-// http://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#ga851ccdd6961022d1d5b4c4f255dbab34
+// http://docs.opencv.org/master/d7/dfc/group__highgui.html#ga851ccdd6961022d1d5b4c4f255dbab34
 //
 func (w *Window) Close() error {
 	cName := C.CString(w.name)
@@ -67,11 +66,20 @@ func (w *Window) IsOpen() bool {
 type WindowFlag float32
 
 const (
-	WindowNormal     WindowFlag = 0
-	WindowFullscreen            = 1
-	WindowAutosize              = 1
-	WindowFreeRatio             = 0x00000100
-	WindowKeepRatio             = 0
+	// WindowNormal indicates a normal window.
+	WindowNormal WindowFlag = 0
+
+	// WindowFullscreen indicates a full-screen window.
+	WindowFullscreen = 1
+
+	// WindowAutosize indicates a window sized based on the contents.
+	WindowAutosize = 1
+
+	// WindowFreeRatio indicates allow the user to resize without maintaining aspect ratio.
+	WindowFreeRatio = 0x00000100
+
+	// WindowKeepRatio indicates always maintain an aspect ratio that matches the contents.
+	WindowKeepRatio = 0
 )
 
 // WindowPropertyFlag flags for SetWindowProperty / GetWindowProperty.
@@ -100,7 +108,7 @@ const (
 // GetWindowProperty returns properties of a window.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#gaaf9504b8f9cf19024d9d44a14e461656
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#gaaf9504b8f9cf19024d9d44a14e461656
 //
 func (w *Window) GetWindowProperty(flag WindowPropertyFlag) float64 {
 	cName := C.CString(w.name)
@@ -112,7 +120,7 @@ func (w *Window) GetWindowProperty(flag WindowPropertyFlag) float64 {
 // SetWindowProperty changes parameters of a window dynamically.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#ga66e4a6db4d4e06148bcdfe0d70a5df27
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga66e4a6db4d4e06148bcdfe0d70a5df27
 //
 func (w *Window) SetWindowProperty(flag WindowPropertyFlag, value WindowFlag) {
 	cName := C.CString(w.name)
@@ -124,7 +132,7 @@ func (w *Window) SetWindowProperty(flag WindowPropertyFlag, value WindowFlag) {
 // SetWindowTitle updates window title.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#ga56f8849295fd10d0c319724ddb773d96
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga56f8849295fd10d0c319724ddb773d96
 //
 func (w *Window) SetWindowTitle(title string) {
 	cName := C.CString(w.name)
@@ -141,7 +149,7 @@ func (w *Window) SetWindowTitle(title string) {
 // the image for specified milliseconds. Otherwise, it won't display the image.
 //
 // For further details, please see:
-// http://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#ga453d42fe4cb60e5723281a89973ee563
+// http://docs.opencv.org/master/d7/dfc/group__highgui.html#ga453d42fe4cb60e5723281a89973ee563
 //
 func (w *Window) IMShow(img Mat) {
 	cName := C.CString(w.name)
@@ -156,7 +164,7 @@ func (w *Window) IMShow(img Mat) {
 // for normal event processing
 //
 // For further details, please see:
-// http://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#ga5628525ad33f52eab17feebcfba38bd7
+// http://docs.opencv.org/master/d7/dfc/group__highgui.html#ga5628525ad33f52eab17feebcfba38bd7
 //
 func (w *Window) WaitKey(delay int) int {
 	return int(C.Window_WaitKey(C.int(delay)))
@@ -165,7 +173,7 @@ func (w *Window) WaitKey(delay int) int {
 // MoveWindow moves window to the specified position.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#ga8d86b207f7211250dbe6e28f76307ffb
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga8d86b207f7211250dbe6e28f76307ffb
 //
 func (w *Window) MoveWindow(x, y int) {
 	cName := C.CString(w.name)
@@ -177,7 +185,7 @@ func (w *Window) MoveWindow(x, y int) {
 // ResizeWindow resizes window to the specified size.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#ga9e80e080f7ef33f897e415358aee7f7e
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga9e80e080f7ef33f897e415358aee7f7e
 //
 func (w *Window) ResizeWindow(width, height int) {
 	cName := C.CString(w.name)
@@ -194,7 +202,7 @@ func (w *Window) ResizeWindow(width, height int) {
 // use key c to cancel selection (function will return a zero Rect).
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#ga8daf4730d3adf7035b6de9be4c469af5
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga8daf4730d3adf7035b6de9be4c469af5
 //
 func SelectROI(name string, img Mat) image.Rectangle {
 	cName := C.CString(name)
@@ -213,7 +221,7 @@ func SelectROI(name string, img Mat) image.Rectangle {
 // use esc to terminate multiple ROI selection process
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#ga0f11fad74a6432b8055fb21621a0f893
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga0f11fad74a6432b8055fb21621a0f893
 //
 func SelectROIs(name string, img Mat) []image.Rectangle {
 	cName := C.CString(name)
@@ -222,24 +230,11 @@ func SelectROIs(name string, img Mat) []image.Rectangle {
 	ret := C.Window_SelectROIs(cName, img.p)
 	defer C.Rects_Close(ret)
 
-	cArray := ret.rects
-	length := int(ret.length)
-	hdr := reflect.SliceHeader{
-		Data: uintptr(unsafe.Pointer(cArray)),
-		Len:  length,
-		Cap:  length,
-	}
-	s := *(*[]C.Rect)(unsafe.Pointer(&hdr))
-
-	rects := make([]image.Rectangle, length)
-	for i, r := range s {
-		rects[i] = image.Rect(int(r.x), int(r.y), int(r.x+r.width), int(r.y+r.height))
-	}
-	return rects
+	return toRectangles(ret)
 }
 
-// Deprecated: WaitKey that is not attached to a specific Window is deprecated.
-// Please use Window.WaitKey() instead.
+// WaitKey that is not attached to a specific Window.
+// Only use when no Window exists in your application, e.g. command line app.
 //
 func WaitKey(delay int) int {
 	return int(C.Window_WaitKey(C.int(delay)))
@@ -254,7 +249,7 @@ type Trackbar struct {
 // CreateTrackbar creates a trackbar and attaches it to the specified window.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#gaf78d2155d30b728fc413803745b67a9b
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#gaf78d2155d30b728fc413803745b67a9b
 //
 func (w *Window) CreateTrackbar(name string, max int) *Trackbar {
 	cName := C.CString(w.name)
@@ -270,7 +265,7 @@ func (w *Window) CreateTrackbar(name string, max int) *Trackbar {
 // GetPos returns the trackbar position.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#ga122632e9e91b9ec06943472c55d9cda8
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga122632e9e91b9ec06943472c55d9cda8
 //
 func (t *Trackbar) GetPos() int {
 	cName := C.CString(t.parent.name)
@@ -285,7 +280,7 @@ func (t *Trackbar) GetPos() int {
 // SetPos sets the trackbar position.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#ga67d73c4c9430f13481fd58410d01bd8d
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga67d73c4c9430f13481fd58410d01bd8d
 //
 func (t *Trackbar) SetPos(pos int) {
 	cName := C.CString(t.parent.name)
@@ -300,7 +295,7 @@ func (t *Trackbar) SetPos(pos int) {
 // SetMin sets the trackbar minimum position.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#gabe26ffe8d2b60cc678895595a581b7aa
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#gabe26ffe8d2b60cc678895595a581b7aa
 //
 func (t *Trackbar) SetMin(pos int) {
 	cName := C.CString(t.parent.name)
@@ -315,7 +310,7 @@ func (t *Trackbar) SetMin(pos int) {
 // SetMax sets the trackbar maximum position.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/dfc/group__highgui.html#ga7e5437ccba37f1154b65210902fc4480
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga7e5437ccba37f1154b65210902fc4480
 //
 func (t *Trackbar) SetMax(pos int) {
 	cName := C.CString(t.parent.name)

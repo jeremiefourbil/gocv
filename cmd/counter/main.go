@@ -71,6 +71,7 @@ func main() {
 		mog2.Apply(img, imgFG)
 		kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Pt(3, 3))
 		gocv.Erode(imgFG, imgCleaned, kernel)
+		kernel.Close()
 
 		// calculate the image moment based on the cleaned frame
 		moments := gocv.Moments(imgCleaned, true)
@@ -97,6 +98,8 @@ func main() {
 			gocv.FontHersheyPlain, 1.2, color.RGBA{0, 255, 0, 0}, 2)
 
 		window.IMShow(img)
-		window.WaitKey(1)
+		if window.WaitKey(1) >= 0 {
+			break
+		}
 	}
 }

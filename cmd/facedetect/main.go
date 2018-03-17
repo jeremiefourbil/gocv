@@ -56,7 +56,10 @@ func main() {
 	classifier := gocv.NewCascadeClassifier()
 	defer classifier.Close()
 
-	classifier.Load(xmlFile)
+	if !classifier.Load(xmlFile) {
+		fmt.Printf("Error reading cascade file: %v\n", xmlFile)
+		return
+	}
 
 	fmt.Printf("start reading camera device: %v\n", deviceID)
 	for {
@@ -84,6 +87,8 @@ func main() {
 
 		// show the image in the window, and wait 1 millisecond
 		window.IMShow(img)
-		window.WaitKey(1)
+		if window.WaitKey(1) >= 0 {
+			break
+		}
 	}
 }

@@ -1,3 +1,133 @@
+0.10.0
+---
+* **build** 
+    * install unzip before build
+    * overwrite when unzipping file to install Tensorflow test model
+    * use -DCPU_DISPATCH= flag for build to avoid problem with disabled AVX on Windows
+    * update unzipped file when installing Tensorflow test model
+* **core** 
+    * add Compare() and CountNonZero() functions
+    * add getter/setter using optional params for multi-dimensional Mat using row/col/channel
+    * Add mat subtract function
+    * add new toRectangle function to DRY up conversion from CRects to []image.Rectangle
+    * add split subtract sum wrappers
+    * Add toCPoints() helper function
+    * Added Mat.CopyToWithMask() per #47
+    * added Pow() method
+    * BatchDistance BorderInterpolate CalcCovarMatrix CartToPolar
+    * CompleteSymm ConvertScaleAbs CopyMakeBorder Dct
+    * divide, multiply
+    * Eigen Exp ExtractChannels
+    * operations on a 3d Mat are not same as a 2d multichannel Mat
+    * resolve merge conflict with duplicate Subtract() function
+    * run gofmt on core tests
+    * Updated type for Mat.GetUCharAt() and Mat.SetUCharAt() to reflect uint8 instead of int8
+* **docs** 
+    * update ROADMAP of completed functions in core from recent contributions
+* **env** 
+    * check loading resources
+    * Add distribution detection to deps rule
+    * Add needed environment variables for Linux
+* **highgui** 
+    * add some missing test coverage on WaitKey()
+* **imgproc** 
+    * Add adaptive threshold function
+    * Add pyrDown and pyrUp functions
+    * Expose DrawContours()
+    * Expose WarpPerspective and GetPerspectiveTransform
+    * implement ConvexHull() and ConvexityDefects() functions
+* **opencv** 
+    * update to OpenCV version 3.4.1
+
+0.9.0
+---
+* **bugfix** 
+    * correct several errors in size parameter ordering
+* **build**
+    * add missing opencv_face lib reference to env.sh
+    * Support for non-brew installs of opencv on Darwin
+* **core**
+    * add Channels() method to Mat
+    * add ConvertTo() and NewMatFromBytes() functions
+    * add Type() method to Mat
+    * implement ConvertFp16() function
+* **dnn** 
+    * use correct size for blob used for Caffe/Tensorflow tests
+* **docs** 
+    * Update copyright date and Apache 2.0 license to include full text
+* **examples** 
+    * cleanup mjpeg streamer code
+    * cleanup motion detector comments
+    * correct use of defer in loop
+    * use correct size for blob used for Caffe/Tensorflow examples
+* **imgproc**
+    * Add cv::approxPolyDP() bindings.
+    * Add cv::arcLength() bindings.
+    * Add cv::matchTemplate() bindings.
+    * correct comment and link for Blur function
+    * correct docs for BilateralFilter()
+
+0.8.0
+---
+* **core**
+    * add ColorMapFunctions and their test
+    * add Mat ToBytes
+    * add Reshape and MinMaxLoc functions
+    * also delete points
+    * fix mistake in the norm function by taking NormType instead of int as parameter
+    * SetDoubleAt func and his test
+    * SetFloatAt func and his test
+    * SetIntAt func and his test
+    * SetSCharAt func and his test
+    * SetShortAt func and his test
+    * SetUCharAt fun and his test
+    * use correct delete operator for array of new, eliminates a bunch of memory leaks
+* **dnn**
+    * add support for loading Tensorflow models
+    * adjust test for Caffe now that we are auto-cropping blob
+    * first pass at adding Caffe support
+    * go back to older function signature to avoid version conflicts with Intel CV SDK
+    * properly close DNN Net class
+    * use approx. value from test result to account forr windows precision differences
+* **features2d**
+    * implement GFTTDetector, KAZE, and MSER algorithms
+    * modify MSER test for Windows results
+* **highgui**
+    * un-deprecate WaitKey function needed for CLI apps
+* **imgcodec**
+    * add fileExt type
+* **imgproc**
+    * add the norm wrapper and use it in test for WarpAffine and WarpAffineWithParams
+    * GetRotationMatrix2D, WarpAffine and WarpAffineWithParams
+    * use NormL2 in wrap affine
+* **pvl**
+    * add support for FaceRecognizer
+    * complete wrappers for all missing FaceDetector functions
+    * update instructions to match R3 of Intel CV SDK
+* **docs**
+    * add more detail about exactly which functions are not yet implememented in the modules that are marked as 'Work Started'
+    * add refernece to Tensorflow example, and also suggest brew upgrade for MacOS
+    * improve ROADMAP to help would-be contributors know where to get started
+    * in the readme, explain compiling to a static library
+    * remove many godoc warnings by improving function descriptions
+    * update all OpenCV 3.3.1 references to v3.4.0
+    * update CGO_LDFLAGS references to match latest requirements
+    * update contribution guidelines to try to make it more inviting
+* **examples**
+    * add Caffe classifier example
+    * add Tensorflow classifier example
+    * fixed closing window in examples in infinite loop
+    * fixed format of the examples with gofmt
+* **test**
+    * add helper function for test : floatEquals
+    * add some attiribution from test function
+    * display OpenCV version in case that test fails
+    * add round function to allow for floating point accuracy differences due to GPU usage.
+* **build**
+    * improve search for already installed OpenCV on MacOS
+    * update Appveyor build to Opencv 3.4.0
+    * update to Opencv 3.4.0
+
 0.7.0
 ---
 * **core**

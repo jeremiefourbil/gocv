@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eux -o pipefail
 
-OPENCV_VERSION=${OPENCV_VERSION:-3.3.1}
+OPENCV_VERSION=${OPENCV_VERSION:-3.4.1}
 
 #GRAPHICAL=ON
 GRAPHICAL=${GRAPHICAL:-OFF}
@@ -53,6 +53,25 @@ cmake -D WITH_IPP=${GRAPHICAL} \
       -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib-${OPENCV_VERSION}/modules ..
 make -j8
 make install && touch $HOME/usr/installed-${OPENCV_VERSION}
+
+# caffe test data
+if [[ ! -d "${HOME}/testdata" ]]; then
+  mkdir ${HOME}/testdata
+fi
+
+#if [[ ! -f "${HOME}/testdata/bvlc_googlenet.prototxt" ]]; then
+  cp ../../opencv-${OPENCV_VERSION}/samples/data/dnn/bvlc_googlenet.prototxt ${HOME}/testdata/bvlc_googlenet.prototxt
+#fi
+
+#if [[ ! -f "${HOME}/testdata/bvlc_googlenet.caffemodel" ]]; then
+  curl -sL http://dl.caffe.berkeleyvision.org/bvlc_googlenet.caffemodel > ${HOME}/testdata/bvlc_googlenet.caffemodel
+#fi
+
+#if [[ ! -f "${HOME}/testdata/tensorflow_inception_graph.pb" ]]; then
+  curl -sL https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip > ${HOME}/testdata/inception5h.zip
+  unzip -o ${HOME}/testdata/inception5h.zip tensorflow_inception_graph.pb -d ${HOME}/testdata
+#fi
+
 cd ../..
 touch $HOME/fresh-cache
 fi

@@ -26,7 +26,9 @@ install:
   - cd c:\gopath\src\gocv.io\x\gocv
   - go get -d .
   - set CGO_CPPFLAGS=-IC:\opencv\build\install\include
-  - set CGO_LDFLAGS=-LC:\opencv\build\install\x64\mingw\lib -lopencv_core331 -lopencv_face331 -lopencv_videoio331 -lopencv_imgproc331 -lopencv_highgui331 -lopencv_imgcodecs331 -lopencv_objdetect331 -lopencv_features2d331 -lopencv_video331 -lopencv_xfeatures2d331
+  - set CGO_LDFLAGS=-LC:\opencv\build\install\x64\mingw\lib -lopencv_core341 -lopencv_face341 -lopencv_videoio341 -lopencv_imgproc341 -lopencv_highgui341 -lopencv_imgcodecs341 -lopencv_objdetect341 -lopencv_features2d341 -lopencv_video341 -lopencv_dnn341 -lopencv_xfeatures2d341
+  - set GOCV_CAFFE_TEST_FILES=C:\opencv\testdata
+  - set GOCV_TENSORFLOW_TEST_FILES=C:\opencv\testdata
   - go env
 
 build_script:

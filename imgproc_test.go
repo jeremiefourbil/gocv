@@ -4,8 +4,72 @@ import (
 	"image"
 	"image/color"
 	"math"
+	"reflect"
 	"testing"
 )
+
+func TestApproxPolyDP(t *testing.T) {
+	img := NewMatWithSize(100, 200, MatTypeCV8UC1)
+	defer img.Close()
+
+	white := color.RGBA{255, 255, 255, 255}
+	// Draw triangle
+	Line(img, image.Pt(25, 25), image.Pt(25, 75), white, 1)
+	Line(img, image.Pt(25, 75), image.Pt(75, 50), white, 1)
+	Line(img, image.Pt(75, 50), image.Pt(25, 25), white, 1)
+	// Draw rectangle
+	Rectangle(img, image.Rect(125, 25, 175, 75), white, 1)
+
+	contours := FindContours(img, RetrievalExternal, ChainApproxSimple)
+
+	trianglePerimeter := ArcLength(contours[0], true)
+	triangleContour := ApproxPolyDP(contours[0], 0.04*trianglePerimeter, true)
+	expectedTriangleContour := []image.Point{image.Pt(25, 25), image.Pt(25, 75), image.Pt(75, 50)}
+	if !reflect.DeepEqual(triangleContour, expectedTriangleContour) {
+		t.Errorf("Failed to approximate triangle.\nActual:%v\nExpect:%v", triangleContour, expectedTriangleContour)
+	}
+
+	rectPerimeter := ArcLength(contours[1], true)
+	rectContour := ApproxPolyDP(contours[1], 0.04*rectPerimeter, true)
+	expectedRectContour := []image.Point{image.Pt(125, 24), image.Pt(124, 75), image.Pt(175, 76), image.Pt(176, 25)}
+	if !reflect.DeepEqual(rectContour, expectedRectContour) {
+		t.Errorf("Failed to approximate rectangle.\nActual:%v\nExpect:%v", rectContour, expectedRectContour)
+	}
+}
+
+func TestConvexity(t *testing.T) {
+	img := IMRead("images/face-detect.jpg", IMReadGrayScale)
+	if img.Empty() {
+		t.Error("Invalid read of Mat in FindContours test")
+	}
+	defer img.Close()
+
+	res := FindContours(img, RetrievalExternal, ChainApproxSimple)
+	if len(res) < 1 {
+		t.Error("Invalid FindContours test")
+	}
+
+	area := ContourArea(res[0])
+	if area != 127280.0 {
+		t.Errorf("Invalid ContourArea test: %f", area)
+	}
+
+	hull := NewMat()
+	defer hull.Close()
+
+	ConvexHull(res[0], hull, true, false)
+	if hull.Empty() {
+		t.Error("Invalid ConvexHull test")
+	}
+
+	defects := NewMat()
+	defer defects.Close()
+
+	ConvexityDefects(res[0], hull, defects)
+	if defects.Empty() {
+		t.Error("Invalid ConvexityDefects test")
+	}
+}
 
 func TestCvtColor(t *testing.T) {
 	img := IMRead("images/face-detect.jpg", IMReadColor)
@@ -73,6 +137,27 @@ func TestDilate(t *testing.T) {
 	}
 }
 
+func TestMatchTemplate(t *testing.T) {
+	imgScene := IMRead("images/face.jpg", IMReadGrayScale)
+	if imgScene.Empty() {
+		t.Error("Invalid read of face.jpg in MatchTemplate test")
+	}
+	defer imgScene.Close()
+
+	imgTemplate := IMRead("images/toy.jpg", IMReadGrayScale)
+	if imgTemplate.Empty() {
+		t.Error("Invalid read of toy.jpg in MatchTemplate test")
+	}
+	defer imgTemplate.Close()
+
+	result := NewMat()
+	MatchTemplate(imgScene, imgTemplate, result, TmCcoeffNormed, NewMat())
+	_, maxConfidence, _, _ := MinMaxLoc(result)
+	if maxConfidence < 0.95 {
+		t.Errorf("Max confidence of %f is too low. MatchTemplate could not find template in scene.", maxConfidence)
+	}
+}
+
 func TestMoments(t *testing.T) {
 	img := IMRead("images/face-detect.jpg", IMReadGrayScale)
 	if img.Empty() {
@@ -83,6 +168,38 @@ func TestMoments(t *testing.T) {
 	result := Moments(img, true)
 	if len(result) < 1 {
 		t.Errorf("Invalid Moments test: %v", result)
+	}
+}
+
+func TestPyrDown(t *testing.T) {
+	img := IMRead("images/face-detect.jpg", IMReadColor)
+	if img.Empty() {
+		t.Error("Invalid read of Mat in PyrDown test")
+	}
+	defer img.Close()
+
+	dest := NewMat()
+	defer dest.Close()
+
+	PyrDown(img, dest, image.Point{X: dest.Cols(), Y: dest.Rows()}, BorderDefault)
+	if dest.Empty() && math.Abs(float64(img.Cols()-2*dest.Cols())) < 2.0 && math.Abs(float64(img.Rows()-2*dest.Rows())) < 2.0 {
+		t.Error("Invalid PyrDown test")
+	}
+}
+
+func TestPyrUp(t *testing.T) {
+	img := IMRead("images/face-detect.jpg", IMReadColor)
+	if img.Empty() {
+		t.Error("Invalid read of Mat in PyrUp test")
+	}
+	defer img.Close()
+
+	dest := NewMat()
+	defer dest.Close()
+
+	PyrUp(img, dest, image.Point{X: dest.Cols(), Y: dest.Rows()}, BorderDefault)
+	if dest.Empty() && math.Abs(float64(2*img.Cols()-dest.Cols())) < 2.0 && math.Abs(float64(2*img.Rows()-dest.Rows())) < 2.0 {
+		t.Error("Invalid PyrUp test")
 	}
 }
 
@@ -104,8 +221,18 @@ func TestFindContours(t *testing.T) {
 	}
 
 	r := BoundingRect(res[0])
-	if r.Min.X != 0 || r.Max.Y != 320 {
+	if !r.Eq(image.Rect(0, 0, 400, 320)) {
 		t.Errorf("Invalid BoundingRect test: %v", r)
+	}
+
+	length := ArcLength(res[0], true)
+	if int(length) != 1436 {
+		t.Errorf("Invalid ArcLength test: %f", length)
+	}
+
+	length = ArcLength(res[0], false)
+	if int(length) != 1037 {
+		t.Errorf("Invalid ArcLength test: %f", length)
 	}
 }
 
@@ -283,7 +410,7 @@ func TestHoughCircles(t *testing.T) {
 	if circles.Rows() != 1 {
 		t.Errorf("Invalid HoughCircles test rows: %v", circles.Rows())
 	}
-	if circles.Cols() < 330 || circles.Cols() > 334 {
+	if circles.Cols() < 317 || circles.Cols() > 334 {
 		t.Errorf("Invalid HoughCircles test cols: %v", circles.Cols())
 	}
 }
@@ -379,6 +506,21 @@ func TestThreshold(t *testing.T) {
 		t.Error("Invalid Threshold test")
 	}
 }
+func TestAdaptiveThreshold(t *testing.T) {
+	img := IMRead("images/face-detect.jpg", IMReadGrayScale)
+	if img.Empty() {
+		t.Error("Invalid read of Mat in AdaptiveThreshold test")
+	}
+	defer img.Close()
+
+	dest := NewMat()
+	defer dest.Close()
+
+	AdaptiveThreshold(img, dest, 255, AdaptiveThresholdMean, ThresholdBinary, 11, 2)
+	if dest.Empty() || img.Rows() != dest.Rows() || img.Cols() != dest.Cols() {
+		t.Error("Invalid Threshold test")
+	}
+}
 
 func TestDrawing(t *testing.T) {
 	img := NewMatWithSize(150, 150, MatTypeCV8U)
@@ -440,5 +582,232 @@ func TestResize(t *testing.T) {
 	Resize(src, dst, image.Pt(440, 377), 0, 0, InterpolationCubic)
 	if dst.Cols() != 440 || dst.Rows() != 377 {
 		t.Errorf("Expected dst size of 440x377 got %dx%d", dst.Cols(), dst.Rows())
+	}
+}
+
+func TestGetRotationMatrix2D(t *testing.T) {
+	type args struct {
+		center image.Point
+		angle  float64
+		scale  float64
+	}
+	tests := []struct {
+		name string
+		args args
+		want [][]float64
+	}{
+		{
+			name: "90",
+			args: args{image.Point{0, 0}, 90.0, 1.0},
+			want: [][]float64{
+				{6.123233995736766e-17, 1, 0},
+				{-1, 6.123233995736766e-17, 0},
+			},
+		},
+		{
+			name: "45",
+			args: args{image.Point{0, 0}, 45.0, 1.0},
+			want: [][]float64{
+				{0.7071067811865476, 0.7071067811865475, 0},
+				{-0.7071067811865475, 0.7071067811865476, 0},
+			},
+		},
+		{
+			name: "0",
+			args: args{image.Point{0, 0}, 0.0, 1.0},
+			want: [][]float64{
+				{1, 0, 0},
+				{-0, 1, 0},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := GetRotationMatrix2D(tt.args.center, tt.args.angle, tt.args.scale)
+			for row := 0; row < got.Rows(); row++ {
+				for col := 0; col < got.Cols(); col++ {
+					if !floatEquals(got.GetDoubleAt(row, col), tt.want[row][col]) {
+						t.Errorf("GetRotationMatrix2D() = %v, want %v at row:%v col:%v", got.GetDoubleAt(row, col), tt.want[row][col], row, col)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestWarpAffine(t *testing.T) {
+	src := NewMatWithSize(256, 256, MatTypeCV8UC1)
+	rot := GetRotationMatrix2D(image.Point{0, 0}, 1.0, 1.0)
+	dst := src.Clone()
+
+	WarpAffine(src, dst, rot, image.Point{256, 256})
+	result := Norm(dst, NormL2)
+	if result != 0.0 {
+		t.Errorf("WarpAffine() = %v, want %v", result, 0.0)
+	}
+	src = IMRead("images/gocvlogo.jpg", IMReadUnchanged)
+	dst = src.Clone()
+	WarpAffine(src, dst, rot, image.Point{343, 400})
+	result = Norm(dst, NormL2)
+
+	if !floatEquals(round(result, 0.05), round(111111.05, 0.05)) {
+		t.Errorf("WarpAffine() = %v, want %v", round(result, 0.05), round(111111.05, 0.05))
+	}
+}
+
+func TestWarpAffineWithParams(t *testing.T) {
+	src := NewMatWithSize(256, 256, MatTypeCV8UC1)
+	rot := GetRotationMatrix2D(image.Point{0, 0}, 1.0, 1.0)
+	dst := src.Clone()
+
+	WarpAffineWithParams(src, dst, rot, image.Point{256, 256}, InterpolationLinear, BorderConstant, color.RGBA{0, 0, 0, 0})
+	result := Norm(dst, NormL2)
+	if !floatEquals(result, 0.0) {
+		t.Errorf("WarpAffineWithParams() = %v, want %v", result, 0.0)
+	}
+
+	src = IMRead("images/gocvlogo.jpg", IMReadUnchanged)
+	dst = src.Clone()
+	WarpAffineWithParams(src, dst, rot, image.Point{343, 400}, InterpolationLinear, BorderConstant, color.RGBA{0, 0, 0, 0})
+	result = Norm(dst, NormL2)
+	if !floatEquals(round(result, 0.05), round(111111.05, 0.05)) {
+		t.Errorf("WarpAffine() = %v, want %v", round(result, 0.05), round(111111.05, 0.05))
+	}
+}
+
+func TestApplyColorMap(t *testing.T) {
+	type args struct {
+		colormapType ColormapTypes
+		want         float64
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{name: "COLORMAP_AUTUMN", args: args{colormapType: ColormapAutumn, want: 118090.29593069873}},
+		{name: "COLORMAP_BONE", args: args{colormapType: ColormapBone, want: 122067.44213343704}},
+		{name: "COLORMAP_JET", args: args{colormapType: ColormapJet, want: 98220.64722857409}},
+		{name: "COLORMAP_WINTER", args: args{colormapType: ColormapWinter, want: 94279.52859449394}},
+		{name: "COLORMAP_RAINBOW", args: args{colormapType: ColormapRainbow, want: 92591.40608069411}},
+		{name: "COLORMAP_OCEAN", args: args{colormapType: ColormapOcean, want: 106444.16919681415}},
+		{name: "COLORMAP_SUMMER", args: args{colormapType: ColormapSummer, want: 114434.44957703952}},
+		{name: "COLORMAP_SPRING", args: args{colormapType: ColormapSpring, want: 123557.60209715953}},
+		{name: "COLORMAP_COOL", args: args{colormapType: ColormapCool, want: 123557.60209715953}},
+		{name: "COLORMAP_HSV", args: args{colormapType: ColormapHsv, want: 107679.25179903508}},
+		{name: "COLORMAP_PINK", args: args{colormapType: ColormapPink, want: 136043.97287274434}},
+		{name: "COLORMAP_HOT", args: args{colormapType: ColormapHot, want: 124941.02475968412}},
+		{name: "COLORMAP_PARULA", args: args{colormapType: ColormapParula, want: 111483.33555738274}},
+	}
+	src := IMRead("images/gocvlogo.jpg", IMReadGrayScale)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dst := src.Clone()
+			ApplyColorMap(src, dst, tt.args.colormapType)
+			result := Norm(dst, NormL2)
+			if !floatEquals(result, tt.args.want) {
+				t.Errorf("TestApplyColorMap() = %v, want %v", result, tt.args.want)
+			}
+		})
+	}
+}
+
+func TestApplyCustomColorMap(t *testing.T) {
+	src := IMRead("images/gocvlogo.jpg", IMReadGrayScale)
+	customColorMap := NewMatWithSize(256, 1, MatTypeCV8UC1)
+
+	dst := src.Clone()
+	ApplyCustomColorMap(src, dst, customColorMap)
+	result := Norm(dst, NormL2)
+	if !floatEquals(result, 0.0) {
+		t.Errorf("TestApplyCustomColorMap() = %v, want %v", result, 0.0)
+	}
+}
+
+func TestGetPerspectiveTransform(t *testing.T) {
+	src := []image.Point{
+		image.Pt(0, 0),
+		image.Pt(10, 5),
+		image.Pt(10, 10),
+		image.Pt(5, 10),
+	}
+	dst := []image.Point{
+		image.Pt(0, 0),
+		image.Pt(10, 0),
+		image.Pt(10, 10),
+		image.Pt(0, 10),
+	}
+
+	m := GetPerspectiveTransform(src, dst)
+
+	if m.Cols() != 3 {
+		t.Errorf("TestWarpPerspective(): unexpected cols = %v, want = %v", m.Cols(), 3)
+	}
+	if m.Rows() != 3 {
+		t.Errorf("TestWarpPerspective(): unexpected rows = %v, want = %v", m.Rows(), 3)
+	}
+}
+
+func TestWarpPerspective(t *testing.T) {
+	img := IMRead("images/gocvlogo.jpg", IMReadUnchanged)
+	defer img.Close()
+
+	w := img.Cols()
+	h := img.Rows()
+
+	s := []image.Point{
+		image.Pt(0, 0),
+		image.Pt(10, 5),
+		image.Pt(10, 10),
+		image.Pt(5, 10),
+	}
+	d := []image.Point{
+		image.Pt(0, 0),
+		image.Pt(10, 0),
+		image.Pt(10, 10),
+		image.Pt(0, 10),
+	}
+	m := GetPerspectiveTransform(s, d)
+
+	dst := NewMat()
+	defer dst.Close()
+
+	WarpPerspective(img, dst, m, image.Pt(w, h))
+
+	if dst.Cols() != w {
+		t.Errorf("TestWarpPerspective(): unexpected cols = %v, want = %v", dst.Cols(), w)
+	}
+
+	if dst.Rows() != h {
+		t.Errorf("TestWarpPerspective(): unexpected rows = %v, want = %v", dst.Rows(), h)
+	}
+}
+
+func TestDrawContours(t *testing.T) {
+	img := NewMatWithSize(100, 200, MatTypeCV8UC1)
+	defer img.Close()
+
+	// Draw rectangle
+	white := color.RGBA{255, 255, 255, 255}
+	Rectangle(img, image.Rect(125, 25, 175, 75), white, 1)
+
+	contours := FindContours(img, RetrievalExternal, ChainApproxSimple)
+
+	if v := img.GetUCharAt(23, 123); v != 0 {
+		t.Errorf("TestDrawContours(): wrong pixel value = %v, want = %v", v, 0)
+	}
+	if v := img.GetUCharAt(25, 125); v != 206 {
+		t.Errorf("TestDrawContours(): wrong pixel value = %v, want = %v", v, 206)
+	}
+
+	DrawContours(img, contours, -1, white, 2)
+
+	// contour should be drawn with thickness = 2
+	if v := img.GetUCharAt(24, 124); v != 255 {
+		t.Errorf("TestDrawContours(): contour has not been drawn (value = %v, want = %v)", v, 255)
+	}
+	if v := img.GetUCharAt(25, 125); v != 255 {
+		t.Errorf("TestDrawContours(): contour has not been drawn (value = %v, want = %v)", v, 255)
 	}
 }

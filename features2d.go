@@ -19,7 +19,7 @@ type AKAZE struct {
 // NewAKAZE returns a new AKAZE algorithm
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d8/d30/classcv_1_1AKAZE.html
+// https://docs.opencv.org/master/d8/d30/classcv_1_1AKAZE.html
 //
 func NewAKAZE() AKAZE {
 	return AKAZE{p: unsafe.Pointer(C.AKAZE_Create())}
@@ -35,7 +35,7 @@ func (a *AKAZE) Close() error {
 // Detect keypoints in an image using AKAZE.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 //
 func (a *AKAZE) Detect(src Mat) []KeyPoint {
 	ret := C.AKAZE_Detect((C.AKAZE)(a.p), src.p)
@@ -44,10 +44,10 @@ func (a *AKAZE) Detect(src Mat) []KeyPoint {
 	return getKeyPoints(ret)
 }
 
-// Detect keypoints and compute in an image using AKAZE.
+// DetectAndCompute keypoints and compute in an image using AKAZE.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d0/d13/classcv_1_1Feature2D.html#a8be0d1c20b08eb867184b8d74c15a677
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#a8be0d1c20b08eb867184b8d74c15a677
 //
 func (a *AKAZE) DetectAndCompute(src Mat, mask Mat) ([]KeyPoint, Mat) {
 	desc := NewMat()
@@ -66,7 +66,7 @@ type AgastFeatureDetector struct {
 // NewAgastFeatureDetector returns a new AgastFeatureDetector algorithm
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/d19/classcv_1_1AgastFeatureDetector.html
+// https://docs.opencv.org/master/d7/d19/classcv_1_1AgastFeatureDetector.html
 //
 func NewAgastFeatureDetector() AgastFeatureDetector {
 	return AgastFeatureDetector{p: unsafe.Pointer(C.AgastFeatureDetector_Create())}
@@ -82,7 +82,7 @@ func (a *AgastFeatureDetector) Close() error {
 // Detect keypoints in an image using AgastFeatureDetector.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 //
 func (a *AgastFeatureDetector) Detect(src Mat) []KeyPoint {
 	ret := C.AgastFeatureDetector_Detect((C.AgastFeatureDetector)(a.p), src.p)
@@ -100,7 +100,7 @@ type BRISK struct {
 // NewBRISK returns a new BRISK algorithm
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d8/d30/classcv_1_1AKAZE.html
+// https://docs.opencv.org/master/d8/d30/classcv_1_1AKAZE.html
 //
 func NewBRISK() BRISK {
 	return BRISK{p: unsafe.Pointer(C.BRISK_Create())}
@@ -116,7 +116,7 @@ func (b *BRISK) Close() error {
 // Detect keypoints in an image using BRISK.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 //
 func (b *BRISK) Detect(src Mat) []KeyPoint {
 	ret := C.BRISK_Detect((C.BRISK)(b.p), src.p)
@@ -125,10 +125,10 @@ func (b *BRISK) Detect(src Mat) []KeyPoint {
 	return getKeyPoints(ret)
 }
 
-// Detect keypoints and compute in an image using BRISK.
+// DetectAndCompute keypoints and compute in an image using BRISK.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d0/d13/classcv_1_1Feature2D.html#a8be0d1c20b08eb867184b8d74c15a677
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#a8be0d1c20b08eb867184b8d74c15a677
 //
 func (b *BRISK) DetectAndCompute(src Mat, mask Mat) ([]KeyPoint, Mat) {
 	desc := NewMat()
@@ -147,7 +147,7 @@ type FastFeatureDetector struct {
 // NewFastFeatureDetector returns a new FastFeatureDetector algorithm
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/df/d74/classcv_1_1FastFeatureDetector.html
+// https://docs.opencv.org/master/df/d74/classcv_1_1FastFeatureDetector.html
 //
 func NewFastFeatureDetector() FastFeatureDetector {
 	return FastFeatureDetector{p: unsafe.Pointer(C.FastFeatureDetector_Create())}
@@ -163,10 +163,125 @@ func (f *FastFeatureDetector) Close() error {
 // Detect keypoints in an image using FastFeatureDetector.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 //
 func (f *FastFeatureDetector) Detect(src Mat) []KeyPoint {
 	ret := C.FastFeatureDetector_Detect((C.FastFeatureDetector)(f.p), src.p)
+	defer C.KeyPoints_Close(ret)
+
+	return getKeyPoints(ret)
+}
+
+// GFTTDetector is a wrapper around the cv::GFTTDetector algorithm.
+type GFTTDetector struct {
+	// C.GFTTDetector
+	p unsafe.Pointer
+}
+
+// NewGFTTDetector returns a new GFTTDetector algorithm
+//
+// For further details, please see:
+// https://docs.opencv.org/master/df/d21/classcv_1_1GFTTDetector.html
+//
+func NewGFTTDetector() GFTTDetector {
+	return GFTTDetector{p: unsafe.Pointer(C.GFTTDetector_Create())}
+}
+
+// Close GFTTDetector.
+func (a *GFTTDetector) Close() error {
+	C.GFTTDetector_Close((C.GFTTDetector)(a.p))
+	a.p = nil
+	return nil
+}
+
+// Detect keypoints in an image using GFTTDetector.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+//
+func (a *GFTTDetector) Detect(src Mat) []KeyPoint {
+	ret := C.GFTTDetector_Detect((C.GFTTDetector)(a.p), src.p)
+	defer C.KeyPoints_Close(ret)
+
+	return getKeyPoints(ret)
+}
+
+// KAZE is a wrapper around the cv::KAZE algorithm.
+type KAZE struct {
+	// C.KAZE
+	p unsafe.Pointer
+}
+
+// NewKAZE returns a new KAZE algorithm
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d3/d61/classcv_1_1KAZE.html
+//
+func NewKAZE() KAZE {
+	return KAZE{p: unsafe.Pointer(C.KAZE_Create())}
+}
+
+// Close KAZE.
+func (a *KAZE) Close() error {
+	C.KAZE_Close((C.KAZE)(a.p))
+	a.p = nil
+	return nil
+}
+
+// Detect keypoints in an image using KAZE.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+//
+func (a *KAZE) Detect(src Mat) []KeyPoint {
+	ret := C.KAZE_Detect((C.KAZE)(a.p), src.p)
+	defer C.KeyPoints_Close(ret)
+
+	return getKeyPoints(ret)
+}
+
+// DetectAndCompute keypoints and compute in an image using KAZE.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#a8be0d1c20b08eb867184b8d74c15a677
+//
+func (a *KAZE) DetectAndCompute(src Mat, mask Mat) ([]KeyPoint, Mat) {
+	desc := NewMat()
+	ret := C.KAZE_DetectAndCompute((C.KAZE)(a.p), src.p, mask.p, desc.p)
+	defer C.KeyPoints_Close(ret)
+
+	return getKeyPoints(ret), desc
+}
+
+// MSER is a wrapper around the cv::MSER algorithm.
+type MSER struct {
+	// C.MSER
+	p unsafe.Pointer
+}
+
+// NewMSER returns a new MSER algorithm
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d3/d28/classcv_1_1MSER.html
+//
+func NewMSER() MSER {
+	return MSER{p: unsafe.Pointer(C.MSER_Create())}
+}
+
+// Close MSER.
+func (a *MSER) Close() error {
+	C.MSER_Close((C.MSER)(a.p))
+	a.p = nil
+	return nil
+}
+
+// Detect keypoints in an image using MSER.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+//
+func (a *MSER) Detect(src Mat) []KeyPoint {
+	ret := C.MSER_Detect((C.MSER)(a.p), src.p)
 	defer C.KeyPoints_Close(ret)
 
 	return getKeyPoints(ret)
@@ -181,7 +296,7 @@ type ORB struct {
 // NewORB returns a new ORB algorithm
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d7/d19/classcv_1_1AgastFeatureDetector.html
+// https://docs.opencv.org/master/d7/d19/classcv_1_1AgastFeatureDetector.html
 //
 func NewORB() ORB {
 	return ORB{p: unsafe.Pointer(C.ORB_Create())}
@@ -197,7 +312,7 @@ func (o *ORB) Close() error {
 // Detect keypoints in an image using ORB.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 //
 func (o *ORB) Detect(src Mat) []KeyPoint {
 	ret := C.ORB_Detect((C.ORB)(o.p), src.p)
@@ -206,10 +321,10 @@ func (o *ORB) Detect(src Mat) []KeyPoint {
 	return getKeyPoints(ret)
 }
 
-// Detect keypoints and compute in an image using ORB.
+// DetectAndCompute detects keypoints and computes from an image using ORB.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d0/d13/classcv_1_1Feature2D.html#a8be0d1c20b08eb867184b8d74c15a677
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#a8be0d1c20b08eb867184b8d74c15a677
 //
 func (o *ORB) DetectAndCompute(src Mat, mask Mat) ([]KeyPoint, Mat) {
 	desc := NewMat()
@@ -228,7 +343,7 @@ type SimpleBlobDetector struct {
 // NewSimpleBlobDetector returns a new SimpleBlobDetector algorithm
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d0/d7a/classcv_1_1SimpleBlobDetector.html
+// https://docs.opencv.org/master/d0/d7a/classcv_1_1SimpleBlobDetector.html
 //
 func NewSimpleBlobDetector() SimpleBlobDetector {
 	return SimpleBlobDetector{p: unsafe.Pointer(C.SimpleBlobDetector_Create())}
@@ -244,7 +359,7 @@ func (b *SimpleBlobDetector) Close() error {
 // Detect keypoints in an image using SimpleBlobDetector.
 //
 // For further details, please see:
-// https://docs.opencv.org/3.3.1/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 //
 func (b *SimpleBlobDetector) Detect(src Mat) []KeyPoint {
 	ret := C.SimpleBlobDetector_Detect((C.SimpleBlobDetector)(b.p), src.p)

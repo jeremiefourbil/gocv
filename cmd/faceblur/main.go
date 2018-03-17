@@ -42,7 +42,7 @@ func main() {
 	defer webcam.Close()
 
 	// open display window
-	window := gocv.NewWindow("Face Detect")
+	window := gocv.NewWindow("Face Blur")
 	defer window.Close()
 
 	// prepare image matrix
@@ -53,7 +53,10 @@ func main() {
 	classifier := gocv.NewCascadeClassifier()
 	defer classifier.Close()
 
-	classifier.Load(xmlFile)
+	if !classifier.Load(xmlFile) {
+		fmt.Printf("Error reading cascade file: %v\n", xmlFile)
+		return
+	}
 
 	fmt.Printf("start reading camera device: %v\n", deviceID)
 	for {
@@ -72,14 +75,16 @@ func main() {
 		// blur each face on the original image
 		for _, r := range rects {
 			imgFace := img.Region(r)
-			defer imgFace.Close()
 
 			// blur face
-			gocv.GaussianBlur(imgFace, imgFace, image.Pt(23, 23), 30, 50, 4)
+			gocv.GaussianBlur(imgFace, imgFace, image.Pt(75, 75), 0, 0, gocv.BorderDefault)
+			imgFace.Close()
 		}
 
 		// show the image in the window, and wait 1 millisecond
 		window.IMShow(img)
-		window.WaitKey(1)
+		if window.WaitKey(1) >= 0 {
+			break
+		}
 	}
 }
